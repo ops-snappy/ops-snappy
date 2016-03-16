@@ -1,0 +1,30 @@
+name: openswitch
+version: 0.2.0
+summary: OpenSwitch NOS
+description: OpenSwitch Network Operating System suite
+icon: OpenSwitchLogo.png
+
+# uses github mirrors for speed instead of the canonical git.openswitch.net
+# repos
+parts:
+  # based on upstream recipe:
+  # https://github.com/open-switch/ops-build/blob/master/yocto/openswitch/meta-distro-openswitch/recipes-ops/openvswitch/ops-openvswitch.bb
+  # without the patches though and without libjemalloc alternate malloc impl
+  # (performance improvement for ovsdb)
+  # also this is built with simulator provider for now to defer integration of
+  # BCM's OpenNSL
+  ops-openvswitch:
+    plugin: autotools
+    configflags:
+      - "OPS_BUILD=1"
+      - "--prefix=/usr"
+      - "--enable-shared"
+      - "--disable-static"
+      - "--enable-simulator-provider"
+    source: git://github.com/open-switch/ops-openvswitch
+    build-packages:
+      - libjemalloc-dev
+      - libltdl-dev
+      - libssl-dev
+      - libyaml-dev
+
