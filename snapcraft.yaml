@@ -30,6 +30,7 @@ parts:
       - "--enable-simulator-provider"
     source: git://github.com/ops-snappy/ops-openvswitch
     build-packages:
+      - pkg-config
       - libjemalloc-dev
       - libltdl-dev
       - libssl-dev
