@@ -22,6 +22,8 @@ parts:
     plugin: x-autotools
     configflags:
       - "OPS_BUILD=1"
+      - "BUILD_OVS_VSWITCHD=0"
+      - "BUILD_PLUGINS_LIB=1"
       - "--prefix=/usr"
       - "--enable-shared"
       - "--disable-static"
