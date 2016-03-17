@@ -29,12 +29,13 @@ parts:
       - "--disable-static"
       - "--enable-simulator-provider"
     source: git://github.com/ops-snappy/ops-openvswitch
+    stage-packages:
+      - libyaml-dev
     build-packages:
       - pkg-config
       - libjemalloc-dev
       - libltdl-dev
       - libssl-dev
-      - libyaml-dev
     after: [ ops ]
     precmd: ['bash', '-c', 'cp -v ../../../stage/usr/share/openvswitch/*.{extschema,ovsschema,xml} vswitchd/']
 
