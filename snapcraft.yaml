@@ -28,7 +28,7 @@ parts:
       - "--enable-shared"
       - "--disable-static"
       - "--enable-simulator-provider"
-    source: git://github.com/open-switch/ops-openvswitch
+    source: git://github.com/ops-snappy/ops-openvswitch
     build-packages:
       - libjemalloc-dev
       - libltdl-dev
