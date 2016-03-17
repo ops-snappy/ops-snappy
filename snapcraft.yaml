@@ -19,7 +19,7 @@ parts:
   # also this is built with simulator provider for now to defer integration of
   # BCM's OpenNSL
   ops-openvswitch:
-    plugin: autotools
+    plugin: x-autotools
     configflags:
       - "OPS_BUILD=1"
       - "--prefix=/usr"
@@ -33,4 +33,5 @@ parts:
       - libssl-dev
       - libyaml-dev
     after: [ ops ]
+    precmd: ['bash', '-c', 'cp -v ../../../stage/usr/share/openvswitch/*.{extschema,ovsschema,xml} vswitchd/']
 
