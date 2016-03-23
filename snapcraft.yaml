@@ -8,8 +8,12 @@ apps:
   start-openswitch:
     command: usr/sbin/start-openswitch
     plugs: [ networking ]
+  stop-openswitch:
+    command: usr/sbin/stop-openswitch
+    plugs: [ networking ]
 
 plugs:
+# TODO - come up with a better security profile for the daemons.
   networking:
     interface: old-security
     security-template: unconfined
