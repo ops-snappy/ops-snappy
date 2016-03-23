@@ -14,6 +14,14 @@ class XAutotoolsPlugin(snapcraft.plugins.autotools.AutotoolsPlugin):
             },
             'default': [],
         }
+        schema['properties']['postcmd'] = {
+            'type': 'array',
+            'minitems': 1,
+            'items': {
+                'type': 'string',
+            },
+            'default': [],
+        }
         return schema
 
     def build(self):
@@ -28,3 +36,5 @@ class XAutotoolsPlugin(snapcraft.plugins.autotools.AutotoolsPlugin):
         super().build()
         baseplugin.build = save
 
+        if self.options.postcmd:
+            self.run(self.options.postcmd)

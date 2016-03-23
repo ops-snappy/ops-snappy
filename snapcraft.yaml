@@ -4,6 +4,16 @@ summary: OpenSwitch NOS
 description: OpenSwitch Network Operating System suite
 icon: OpenSwitchLogo.png
 
+apps:
+  start-openswitch:
+    command: usr/sbin/start-openswitch
+    plugs: [ networking ]
+
+plugs:
+  networking:
+    interface: old-security
+    security-template: unconfined
+
 # uses github mirrors for speed instead of the canonical git.openswitch.net
 # repos
 parts:
@@ -22,6 +32,7 @@ parts:
     plugin: x-autotools
     configflags:
       - "OPS_BUILD=1"
+      - "OPEN_HALON_BUILD=1"
       - "BUILD_OVS_VSWITCHD=0"
       - "BUILD_PLUGINS_LIB=1"
       - "--prefix=/usr"
@@ -38,4 +49,12 @@ parts:
       - libssl-dev
     after: [ ops ]
     precmd: ['bash', '-c', 'cp -v ../../../stage/usr/share/openvswitch/*.{extschema,ovsschema,xml} vswitchd/']
+
+    # TODO: Figure out why build is not installing the libraries.
+    #       In the meantime, we'll install them manually.
+    postcmd: ['bash', '-c', '(test -d ../install/usr/lib || mkdir -p ../install/usr/bin) && cp -a ovsdb/.libs/*.so* ../install/usr/lib && cp -a lib/.libs/*.so* ../install/usr/lib && cp -a ofproto/.libs/*.so* ../install/usr/lib && cp -a vtep/.libs/*.so* ../install/usr/lib && cp -a plugins/.libs/*.so* ../install/usr/lib']
+
+  ops-init:
+    plugin: make
+    source: src/ops-init
 
