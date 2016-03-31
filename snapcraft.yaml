@@ -66,7 +66,7 @@ parts:
     plugin: cmake
     configflags:
       - "-DCMAKE_INSTALL_PREFIX=/usr"
-    source: git://github.com/open-switch/ops-utils
+    source: git://github.com/ops-snappy/ops-utils
     after: [ ops-openvswitch ]
 
   gtest:
@@ -85,7 +85,7 @@ parts:
 
   ops-hw-config:
     plugin: cmake
-    source: git://github.com/open-switch/ops-hw-config
+    source: git://github.com/ops-snappy/ops-hw-config
     after: [ gtest, i2c-header-hack ]
     stage-packages:
       - libyaml-cpp0.3-dev
@@ -108,7 +108,7 @@ parts:
       - "-DPLATFORM_SIMULATION=ON"
     stage-packages:
       - zlib1g-dev
-    source: git://github.com/open-switch/ops-sysd
+    source: git://github.com/ops-snappy/ops-sysd
     after: [ ops-openvswitch, ops-hw-config, ops-utils, ops-cli ]
 
   ops-cfgd:
