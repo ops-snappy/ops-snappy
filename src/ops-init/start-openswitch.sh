@@ -57,8 +57,15 @@ $SBINDIR/ops-init
 #        location for the pid.
 $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 
-OPENSWITCH_DAEMONS=ops-sysd
-#OPENSWITCH_DAEMONS+=ops_cfgd --database=$DBDIR/db.sock
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd"
 for i in $OPENSWITCH_DAEMONS ; do
-    $BINDIR/$i --detach --no-chdir $CONSDBG --pidfile=$PIDDIR/$i.pid --unixctl=$CTLDIR/$i.ctl --install_path=$SNAP --data_path=$SNAP_DATA
+    daemon_args="--detach --no-chdir $CONSDBG --pidfile=$PIDDIR/$i.pid --unixctl=$CTLDIR/$i.ctl --install_path=$SNAP --data_path=$SNAP_DATA"
+    case $i in
+        ops_cfgd)
+            daemon_args="$daemon_args --database=$DBDIR/db.sock"
+            ;;
+        *)
+            ;;
+    esac
+    $BINDIR/$i $daemon_args
 done
