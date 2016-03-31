@@ -99,7 +99,7 @@ parts:
       - "-DCMAKE_INSTALL_PREFIX=/usr"
     source: git://github.com/open-switch/ops-cli
     after: [ ops-openvswitch, ops-utils ]
-    build-packages: [ libreadline-dev, libaudit-dev, pkg-config ]
+    build-packages: [ libreadline-dev, libaudit-dev, pkg-config, libsystemd-dev ]
 
   ops-sysd:
     plugin: cmake
@@ -109,7 +109,12 @@ parts:
     stage-packages:
       - zlib1g-dev
     source: git://github.com/ops-snappy/ops-sysd
-    after: [ ops-openvswitch, ops-hw-config, ops-utils, ops-cli ]
+    after: [ ops-openvswitch, ops-hw-config, ops-utils, ops-cli, ops-supportability ]
+
+  ops-supportability:
+    plugin: cmake
+    source: git://github.com/open-switch/ops-supportability
+    after: [ ops-cli ]
 
   ops-cfgd:
     plugin: python2
