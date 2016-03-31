@@ -56,9 +56,61 @@ parts:
 
     # TODO: Figure out why build is not installing the libraries.
     #       In the meantime, we'll install them manually.
-    postcmd: ['bash', '-c', '(test -d ../install/usr/lib || mkdir -p ../install/usr/bin) && cp -a ovsdb/.libs/*.so* ../install/usr/lib && cp -a lib/.libs/*.so* ../install/usr/lib && cp -a ofproto/.libs/*.so* ../install/usr/lib && cp -a vtep/.libs/*.so* ../install/usr/lib && cp -a plugins/.libs/*.so* ../install/usr/lib']
+    postcmd: ['bash', '-c', '(test -d ../install/usr/lib || mkdir -p ../install/usr/bin) && cp -a ovsdb/.libs/*.so* ../install/usr/lib && cp -a lib/.libs/*.so* ../install/usr/lib && cp -a ofproto/.libs/*.so* ../install/usr/lib && cp -a vtep/.libs/*.so* ../install/usr/lib']
 
   ops-init:
     plugin: make
     source: src/ops-init
 
+  ops-utils:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-utils
+    after: [ ops-openvswitch ]
+
+  gtest:
+    plugin: cmake
+    source: https://github.com/lool/googletest.git
+    source-type: git
+    configflags: 
+      - "-DBUILD_SHARED_LIBS=ON"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+
+  i2c-header-hack:
+    plugin: copy
+    files:
+      /usr/include/linux/i2c-dev.h: usr/include/linux/i2c-dev-user.h
+    build-packages: [ libi2c-dev ]
+
+  ops-hw-config:
+    plugin: cmake
+    source: git://github.com/open-switch/ops-hw-config
+    after: [ gtest, i2c-header-hack ]
+    stage-packages:
+      - libyaml-cpp0.3-dev
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    postcmd: ['bash', '-c', '(test -d ../install/etc/openswitch || mkdir -p ../install/etc/openswitch) && cp -vr ../src/Generic-x86 ../install/etc/openswitch']
+
+  ops-cli:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-cli
+    after: [ ops-openvswitch, ops-utils ]
+    build-packages: [ libreadline-dev, libaudit-dev, pkg-config ]
+
+  ops-sysd:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+      - "-DPLATFORM_SIMULATION=ON"
+    stage-packages:
+      - zlib1g-dev
+    source: git://github.com/open-switch/ops-sysd
+    after: [ ops-openvswitch, ops-hw-config, ops-utils, ops-cli ]
+
+  ops-cfgd:
+    plugin: python2
+    source: git://github.com/open-switch/ops-cfgd

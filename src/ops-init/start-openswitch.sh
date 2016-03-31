@@ -1,15 +1,33 @@
-#!/bin/sh
+#!/bin/bash
+
+# Syslog settings
+LOGSYSLOG="SYSLOG"
+LOGCONSOLE="CONSOLE"
+LOGLVLDBG="DBG"
+LOGLVLINFO="INFO"
+SYSLOGDBG="-v${LOGSYSLOG}:${LOGLVLDBG}"
+SYSLOGINFO="-v${LOGSYSLOG}:${LOGLVLINFO}"
+CONSDBG="-v${LOGCONSOLE}:${LOGLVLDBG}"
+CONSINFO="-v${LOGCONSOLE}:${LOGLVLINFO}"
+LOGDEFAULT=${CONSINFO}
 
 # Required directories
 DBDIR=$SNAP_DATA/var/run/openvswitch
+LOGDIR=$SNAP_DATA/var/log/openvswitch
 VTEPDBDIR=$SNAP_DATA/var/local/openvswitch
 PIDDIR=$DBDIR
 CTLDIR=$PIDDIR
 BINDIR=$SNAP/usr/bin
 SBINDIR=$SNAP/usr/sbin
 SCHEMADIR=$SNAP/usr/share/openvswitch
+CFGDIR=$SNAP_DATA/etc/openswitch
 
-for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR ; do
+export OVS_SYSCONFDIR=$SNAP/etc
+export OVS_PKGDATADIR=$SCHEMADIR
+export OVS_RUNDIR=$DBDIR
+export OVS_LOGDIR=$LOGDIR
+
+for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR ; do
     /usr/bin/test -d $i || mkdir -p $i
 done
 
@@ -37,4 +55,10 @@ $SBINDIR/ops-init
 #        /var/run/openvswitch/<name>.<pid>.ctl.  Can't dynamically
 #        assign the assign the pid if we are specifying a non-default
 #        location for the pid.
-$SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl -vSYSLOG:INFO $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
+$SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
+
+OPENSWITCH_DAEMONS=ops-sysd
+#OPENSWITCH_DAEMONS+=ops_cfgd
+for i in $OPENSWITCH_DAEMONS ; do
+    $BINDIR/$i --detach --no-chdir $CONSDBG --pidfile=$PIDDIR/$i.pid --unixctl=$CTLDIR/$i.ctl --install_path=$SNAP --data_path=$SNAP_DATA --database=$DBDIR/db.sock
+done
