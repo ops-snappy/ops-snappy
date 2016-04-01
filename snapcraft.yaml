@@ -11,6 +11,15 @@ apps:
   stop-openswitch:
     command: usr/sbin/stop-openswitch
     plugs: [ networking ]
+  ovs-appctl:
+    command: usr/bin/ovs-appctl
+    plugs: [ networking ]
+  ovsdb-tool:
+    command: usr/bin/ovsdb-tool
+    plugs: [ networking ]
+  ovsdb-client:
+    command: usr/bin/ovsdb-client
+    plugs: [ networking ]
 
 plugs:
 # TODO - come up with a better security profile for the daemons.
@@ -66,7 +75,7 @@ parts:
     plugin: cmake
     configflags:
       - "-DCMAKE_INSTALL_PREFIX=/usr"
-    source: git://github.com/ops-snappy/ops-utils
+    source: git://github.com/open-switch/ops-utils
     after: [ ops-openvswitch ]
 
   gtest:
@@ -93,6 +102,11 @@ parts:
       - "-DCMAKE_INSTALL_PREFIX=/usr"
     postcmd: ['bash', '-c', '(test -d ../install/etc/openswitch || mkdir -p ../install/etc/openswitch) && cp -vr ../src/Generic-x86 ../install/etc/openswitch']
 
+  # TODO - There is a race condition that sometimes causes ops-cli build to fail.
+  #        The problem is that ops-cli includes <memory.h> located at lib/memory.h.
+  #        However, the CMake include search paths search the staged area before
+  #        searching the local area. Occasionally, it finds the wrong memory.h and
+  #        the build fails.
   ops-cli:
     plugin: cmake
     configflags:
@@ -100,6 +114,7 @@ parts:
     source: git://github.com/open-switch/ops-cli
     after: [ ops-openvswitch, ops-utils ]
     build-packages: [ libreadline-dev, libaudit-dev, pkg-config, libsystemd-dev ]
+    stage-packages: [ libreadline-dev ]
 
   ops-sysd:
     plugin: cmake
@@ -113,9 +128,73 @@ parts:
 
   ops-supportability:
     plugin: cmake
-    source: git://github.com/open-switch/ops-supportability
+    source: git://github.com/ops-snappy/ops-supportability
     after: [ ops-cli ]
 
   ops-cfgd:
     plugin: python2
     source: git://github.com/open-switch/ops-cfgd
+
+  ops-tempd:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-tempd
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+  ops-fand:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-fand
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+  ops-powerd:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-powerd
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+  ops-pmd:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-pmd
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+  ops-portd:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-portd
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+  ops-vland:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-vland
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+    build-packages: [ libreadline-dev ]
+
+  ops-ledd:
+    plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: git://github.com/open-switch/ops-ledd
+    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+#  ops-intfd:
+#    plugin: cmake
+#    configflags:
+#      - "-DCMAKE_INSTALL_PREFIX=/usr"
+#    source: git://github.com/open-switch/ops-intfd
+#    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+
+#  ops-arpmgrd:
+#    plugin: cmake
+#    configflags:
+#      - "-DCMAKE_INSTALL_PREFIX=/usr"
+#    source: git://github.com/open-switch/ops-arpmgrd
+#    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
