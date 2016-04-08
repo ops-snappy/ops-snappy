@@ -33,7 +33,7 @@ parts:
   # schema files required for ops-openvswitch
   ops:
     plugin: make
-    source: git://github.com/ops-snappy/ops
+    source: git://github.com/open-switch/ops
 
   # based on upstream recipe:
   # https://github.com/open-switch/ops-build/blob/master/yocto/openswitch/meta-distro-openswitch/recipes-ops/openvswitch/ops-openvswitch.bb
