@@ -93,7 +93,7 @@ parts:
     build-packages: [ libi2c-dev ]
 
   ops-hw-config:
-    plugin: cmake
+    plugin: x-cmake
     source: git://github.com/ops-snappy/ops-hw-config
     after: [ gtest, i2c-header-hack ]
     stage-packages:
@@ -132,8 +132,9 @@ parts:
     after: [ ops-cli ]
 
   ops-cfgd:
-    plugin: python2
+    plugin: x-python2
     source: git://github.com/open-switch/ops-cfgd
+    postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
 
   ops-tempd:
     plugin: cmake
