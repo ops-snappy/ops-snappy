@@ -13,6 +13,5 @@ before_install:
   - pip install https://launchpad.net/python-distutils-extra/trunk/2.39/+download/python-distutils-extra-2.39.tar.gz
   - pip install docopt jsonschema pyyaml requests
   - cd snapcraft && ./setup.py install && cd ..
-install:
-  - snapcraft
-script: true
+install: true
+script: snapcraft
