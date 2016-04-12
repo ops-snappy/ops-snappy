@@ -1,0 +1,15 @@
+sudo: required
+dist: trusty
+language: python
+python:
+  - 3.4
+addons:
+  apt:
+    packages: [python3]
+before_install:
+  - git clone https://github.com/ops-snappy/snapcraft
+  #- pip install docopt fixtures flake8 jsonschema lxml mccabe petname pexpect python-apt pyxdg pyyaml py3-progressbar requests requests-oauthlib requests-toolbelt responses setuptools ssoclient testscenarios file-magic
+  - pip install pyxdg requests requests-oauthlib ssoclient
+install:
+  - snapcraft/bin/snapcraft
+script: true
