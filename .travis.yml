@@ -12,5 +12,5 @@ before_install:
   - git clone https://github.com/ops-snappy/snapcraft
   - cd snapcraft && ./setup.py install
 install:
-  - snapcraft/bin/snapcraft
+  - snapcraft
 script: true
