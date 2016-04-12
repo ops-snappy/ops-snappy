@@ -1,12 +1,16 @@
 sudo: required
 dist: trusty
 language: python
+virtualenv:
+  system_site_packages: true
 python:
   - 3.4
+addons:
+  apt:
+    packages: [ python3-apt ]
 before_install:
   - git clone https://github.com/ops-snappy/snapcraft
   - pip install https://launchpad.net/python-distutils-extra/trunk/2.39/+download/python-distutils-extra-2.39.tar.gz
-  - pip install https://launchpad.net/ubuntu/+archive/primary/+files/python-apt_0.9.3.5ubuntu2.tar.xz
   - pip install docopt jsonschema pyyaml requests
   - cd snapcraft && ./setup.py install
 install:
