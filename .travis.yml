@@ -5,7 +5,7 @@ python:
   - 3.4
 before_install:
   - git clone https://github.com/ops-snappy/snapcraft
-  - pip install docopt jsonschema pyyaml requests
+  - pip install docopt jsonschema python-apt pyyaml requests
   - cd snapcraft && ./setup.py install
 install:
   - snapcraft
