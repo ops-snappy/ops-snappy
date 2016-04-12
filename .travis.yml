@@ -5,6 +5,7 @@ python:
   - 3.4
 before_install:
   - git clone https://github.com/ops-snappy/snapcraft
+  - pip install https://launchpad.net/python-distutils-extra/trunk/2.39/+download/python-distutils-extra-2.39.tar.gz
   - pip install docopt jsonschema python-apt pyyaml requests
   - cd snapcraft && ./setup.py install
 install:
