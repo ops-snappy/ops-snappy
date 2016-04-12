@@ -2,14 +2,16 @@ sudo: required
 virtualenv:
   system_site_packages: true
 dist: trusty
-language: C
+language: python
+python:
+  - 3.4
 addons:
   apt:
-    packages: [ python3, python3-pip, python3-requests ]
+    packages: [ python3-requests ]
 before_install:
   - git clone https://github.com/ops-snappy/snapcraft
-  - cd snapcraft && sudo python3 setup.py install
-  - sudo pip3 install docopt
+  - cd snapcraft && ./setup.py install
+  - pip install docopt
 install:
   - snapcraft
 script: true
