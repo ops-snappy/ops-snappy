@@ -5,7 +5,7 @@ python:
   - 3.4
 before_install:
   - git clone https://github.com/ops-snappy/snapcraft
-  - pip install docopt requests
+  - pip install docopt requests yaml
   - cd snapcraft && ./setup.py install
 install:
   - snapcraft
