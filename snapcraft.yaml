@@ -140,16 +140,14 @@ parts:
 
   ops-aaa-utils-python:
     plugin: x-python2
-    # source: git://github.com/open-switch/ops-aaa-utils
-    source: work/ops-aaa-utils
+    source: git://github.com/open-switch/ops-aaa-utils
     python-packages: [ pam ]
     postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
     before: [ ops-openvswitch ]
 
   ops-cfgd:
     plugin: x-python2
-    # source: git://github.com/open-switch/ops-cfgd
-    source: work/ops-cfgd
+    source: git://github.com/open-switch/ops-cfgd
     # TODO - requires 'json', but pip can't find it.
     python-packages: [ argparse, distribute ]
     postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
@@ -157,8 +155,7 @@ parts:
 
   ops-restd:
     plugin: x-python2
-    # source: git://github.com/ops-snappy/ops-restd
-    source: work/ops-restd
+    source: git://github.com/ops-snappy/ops-restd
     build-packages: [ libffi-dev ]
     python-packages: [ tornado, html, inflect, jsonschema, jsonpatch, pyOpenSSL, PAM ]
     postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
@@ -238,11 +235,6 @@ parts:
 #      - "-DCMAKE_INSTALL_PREFIX=/usr"
 #    source: git://github.com/open-switch/ops-arpmgrd
 #    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
-#  ops-aaa-utils:
-#    plugin: cmake
-#    # source: git://github.com/open-switch/ops-aaa-utils
-#    source: work/ops-aaa-utils
-#    after: [ ops-cli ]
 
 #
 # TODO: Figure out how to generate version_detail.yaml
