@@ -60,12 +60,12 @@ parts:
       - libjemalloc-dev
       - libltdl-dev
       - libssl-dev
-    after: [ ops ]
+    after: [ ops, ops-cfgd, ops-restd, ops-aaa-utils-python ]
     precmd: ['bash', '-c', 'cp -v ../../../stage/usr/share/openvswitch/*.{extschema,ovsschema,xml} vswitchd/']
 
     # TODO: Figure out why build is not installing the libraries.
     #       In the meantime, we'll install them manually.
-    postcmd: ['bash', '-c', '(test -d ../install/usr/lib || mkdir -p ../install/usr/bin) && cp -a ovsdb/.libs/*.so* ../install/usr/lib && cp -a lib/.libs/*.so* ../install/usr/lib && cp -a ofproto/.libs/*.so* ../install/usr/lib && cp -a vtep/.libs/*.so* ../install/usr/lib']
+    postcmd: ['bash', '-c', '(test -d ../install/usr/lib || mkdir -p ../install/usr/lib) && cp -a ovsdb/.libs/*.so* ../install/usr/lib && cp -a lib/.libs/*.so* ../install/usr/lib && cp -a ofproto/.libs/*.so* ../install/usr/lib && cp -a vtep/.libs/*.so* ../install/usr/lib && (test -d ../install/usr/lib/python2.7/site-packages || mkdir -p ../install/usr/lib/python2.7/site-packages) && mv ../install/usr/share/openvswitch/python/ovs ../install/usr/lib/python2.7/site-packages/']
 
   ops-init:
     plugin: make
@@ -131,10 +131,47 @@ parts:
     source: git://github.com/ops-snappy/ops-supportability
     after: [ ops-cli ]
 
+  ops-supportability-python:
+    plugin: x-python2
+    source: git://github.com/ops-snappy/ops-supportability
+    source-subdir: src/python
+    after: [ ops-cli ]
+    postcmd: ['bash', '-c', 'install -d ../../../install/usr/lib/python2.7/site-packages && install build/lib.linux-x86_64-2.7/ops_diagdump.py ../../../install/usr/lib/python2.7/site-packages && install build/lib.linux-x86_64-2.7/ops_eventlog.py ../../../install/usr/lib/python2.7/site-packages']
+
+  ops-aaa-utils-python:
+    plugin: x-python2
+    # source: git://github.com/open-switch/ops-aaa-utils
+    source: work/ops-aaa-utils
+    python-packages: [ pam ]
+    postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
+    before: [ ops-openvswitch ]
+
   ops-cfgd:
     plugin: x-python2
-    source: git://github.com/open-switch/ops-cfgd
+    # source: git://github.com/open-switch/ops-cfgd
+    source: work/ops-cfgd
+    # TODO - requires 'json', but pip can't find it.
+    python-packages: [ argparse, distribute ]
     postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
+    before: [ ops-openvswitch ]
+
+  ops-restd:
+    plugin: x-python2
+    # source: git://github.com/ops-snappy/ops-restd
+    source: work/ops-restd
+    build-packages: [ libffi-dev ]
+    python-packages: [ tornado, html, inflect, jsonschema, jsonpatch, pyOpenSSL, PAM ]
+    postcmd: ['bash', '-c', 'sed -i -- "s,^#!.*/python,#!/usr/bin/env python," ../install/usr/bin/*']
+    before: [ ops-openvswitch, ops-cfgd ]
+    after: [ ops ]
+
+  ops-restd-json:
+    plugin: x-copy
+    precmd: [ 'bash', '-c', 'install -d ../install/src/www/api && cd ../../ops-restd/build/opslib && PYTHONPATH=../../../../stage/lib/python2.7/dist-packages:${PYTHONPATH} python apidocgen.py ../../../../stage/usr/share/openvswitch/vswitch.extschema ../../../../stage/usr/share/openvswitch/vswitch.xml > ../../../ops-restd-json/install/src/www/api/ops-restapi.json' ]
+    files:
+      parts/ops-restd/src/server.crt: etc/ssl/certs
+      parts/ops-restd/src/server-private.key: etc/ssl/certs
+    after: [ ops, ops-openvswitch, ops-restd ]
 
   ops-tempd:
     plugin: cmake
@@ -186,16 +223,27 @@ parts:
     source: git://github.com/open-switch/ops-ledd
     after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
 
+#
+# TODO: The following fail compile due to conflicting definitions of CTRL(c)
+#
 #  ops-intfd:
 #    plugin: cmake
 #    configflags:
 #      - "-DCMAKE_INSTALL_PREFIX=/usr"
 #    source: git://github.com/open-switch/ops-intfd
 #    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
-
 #  ops-arpmgrd:
 #    plugin: cmake
 #    configflags:
 #      - "-DCMAKE_INSTALL_PREFIX=/usr"
 #    source: git://github.com/open-switch/ops-arpmgrd
 #    after: [ ops-openvswitch, ops-cli, ops-hw-config, ops-supportability ]
+#  ops-aaa-utils:
+#    plugin: cmake
+#    # source: git://github.com/open-switch/ops-aaa-utils
+#    source: work/ops-aaa-utils
+#    after: [ ops-cli ]
+
+#
+# TODO: Figure out how to generate version_detail.yaml
+#

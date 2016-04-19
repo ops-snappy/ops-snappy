@@ -24,9 +24,15 @@ CFGDIR=$SNAP_DATA/etc/openswitch
 
 # Override the default dir locations in ops-openvswitch
 export OVS_SYSCONFDIR=$SNAP/etc
+echo  OVS_SYSCONFDIR=$SNAP/etc
 export OVS_PKGDATADIR=$SCHEMADIR
+echo OVS_PKGDATADIR=$SCHEMADIR
 export OVS_RUNDIR=$DBDIR
+echo OVS_RUNDIR=$DBDIR
 export OVS_LOGDIR=$LOGDIR
+echo OVS_LOGDIR=$LOGDIR
+export OVS_DBDIR=$DBDIR
+echo OVS_DBDIR=$DBDIR
 
 # Override the default install_path and data_path in OpenSwitch
 export OPENSWITCH_INSTALL_PATH=$SNAP
@@ -63,17 +69,23 @@ $SBINDIR/ops-init
 #        location for the pid.
 $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 
-NOT_YET="ops_cfgd ops-arpmgrd ops-intfd"
-OPENSWITCH_DAEMONS="ops-sysd ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
+NOT_YET="ops-arpmgrd ops-intfd"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops_aaautilspamcfg restd ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
-    daemon_args="--detach --no-chdir $CONSDBG --pidfile=$PIDDIR/$i.pid --unixctl=$CTLDIR/$i.ctl"
+    daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
+    daemon_log=$LOGDEFAULT
     case $i in
-        ops_cfgd)
-            daemon_args="$daemon_args --database=$DBDIR/db.sock"
+        ops_cfgd|ops_aaautilspamcfg)
+            daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
             ;;
-        *)
+        restd)
+            daemon_args=""
+            ;;
+        *)  daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             ;;
     esac
+    echo STARTING: $daemon_loc/$i $daemon_args
     $daemon_loc/$i $daemon_args
+    sleep 1
 done
